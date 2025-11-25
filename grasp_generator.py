@@ -137,8 +137,20 @@ class GraspGenerator:
         if (self.network == 'GR_ConvNet'):
             ##### GR-ConvNet #####
             depth = np.expand_dims(np.array(depth), axis=2)
+            print(f"DEPTH: {depth.shape}")
             img_data = CameraData(width=self.IMG_WIDTH, height=self.IMG_WIDTH)
             x, depth_img, rgb_img = img_data.get_data(rgb=rgb, depth=depth)
+            print(f"X shape: {x.shape}")
+        elif(self.network == 'GGCNN'):
+            ##### GGCNN #####
+            print(f"DEPTH: {depth.shape}") #Should be 300 x 300
+            # Convert to expected tensor format - 1 image, 1 channel (ggcnn is depth only), 300x300 pixels
+            x = torch.from_numpy(depth.reshape(1, 1, 300, 300).astype(np.float32))
+            
+            print(f"X shape: {x.shape}")
+            # depth_img = depth
+            # rgb_img = rgb
+            
         else:
             print("The selected network has not been implemented yet -- please choose another network!")
             exit() 
@@ -156,6 +168,24 @@ class GraspGenerator:
                                                                 pred['sin'],
                                                                 pred['width'],
                                                                 pixels_max_grasp)
+            elif (self.network == 'GGCNN'):
+                ##### GGCNN #####
+                # GGCNN forward pass - returns 4 outputs: pos, cos, sin, width
+                pred_outputs = self.net(xc)
+                ##### DEBUGGING #####
+                # print("PREDICTION OUTPUTS:\n")
+                # print(pred_outputs)
+                # print(len(pred_outputs))
+                
+                # pred_outputs is just a tuple of 4 tensors so we should use indexes instead
+                pixels_max_grasp = int(self.MAX_GRASP * self.PIX_CONVERSION)
+                # the post_process_output function is almost identical to the one in trained_models/GG_CNN/models/common.py so we can use it
+                q_img, ang_img, width_img = self.post_process_output(pred_outputs[0], #pos
+                                                                pred_outputs[1], #cos
+                                                                pred_outputs[2], #sin
+                                                                pred_outputs[3], #width
+                                                                pixels_max_grasp)
+                
             else: 
                 print ("you need to add your function here!")        
         
