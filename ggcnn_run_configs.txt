@@ -1,0 +1,8 @@
+# Isolated Scenario (10 runs)
+python simulation.py --scenario isolated --network GGCNN --runs 10 --attempts 4 --save-network-output True --device cpu --vis False --report True
+
+# Packed Scenario (10 runs) 
+python simulation.py --scenario packed --network GGCNN --runs 10 --attempts 4 --save-network-output True --device cpu --vis False --report True
+
+# Pile Scenario (10 runs)
+python simulation.py --scenario pile --network GGCNN --runs 10 --attempts 4 --save-network-output True --device cpu --vis False --report True
